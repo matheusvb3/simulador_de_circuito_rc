@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "simulador-de-circuito-rc" 
+dynamic = ["version"] # Indica que a string que indica a versão do projeto é "dinâmica" e será determinada em outro arquivo, neste caso src/conversor/__about__.py, conforme definido na seção "[tool.hatch.version]" deste arquivo
+description = "Realiza a simulação de um circuito elétrico com resistor e capacitor"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = ["circuito elétrico", "simulador"]
+authors = [
+  { name = "Matheus", email = "matheus.venturini@acad.ufsm.br" },
+]
+dependencies = []
+
+[tool.hatch.version]
+path = "src/simulador_de_circuito_rc/__about__.py"
+
+[tool.hatch.envs.default]
+dependencies = [ # Aqui estão as dependências para quem for trabalhar com o desenvolvimento do projeto
+    "pytest",
+    "ruff",
+    "mypy",
+    "sphinx",
+    "myst-parser" # Para usar Markdown com o Sphinx. Neste projeto não será usado, mas vou deixar incluso apneas por acaso.
+]
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/simulador_de_circuito_rc tests}"
+
+[tool.coverage.run]
+source_pkgs = ["simulador_de_circuito_rc", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/simulador_de_circuito_rc/__about__.py",
+]
+
+[tool.coverage.paths]
+simulador_de_circuito_rc = ["src/simulador_de_circuito_rc", "*/simulador-de-circuito-rc/src/simulador_de_circuito_rc"]
+tests = ["tests", "*/simulador-de-circuito-rc/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
