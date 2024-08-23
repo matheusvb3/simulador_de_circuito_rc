@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import Qt, QTimer, QPointF
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout, QPushButton, QLabel, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout, QPushButton, QLabel, QLineEdit, QFormLayout, QErrorMessage
 from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis
 import random
 import sys
@@ -21,26 +21,25 @@ class Simulador(QMainWindow):
 
     def inicializar_interface(self):
         layout = QVBoxLayout()
+        layout_formulario = QFormLayout()
 
         self.entrada_R = QLineEdit(self)
-        self.entrada_R.setPlaceholderText("Resistência (R) em Ohms")
-        layout.addWidget(self.entrada_R)
+        layout_formulario.addRow(QLabel("Resistência (R) em Ohms:"), self.entrada_R)
 
         self.entrada_C = QLineEdit(self)
-        self.entrada_C.setPlaceholderText("Capacitância (C) em Farads")
-        layout.addWidget(self.entrada_C)
+        layout_formulario.addRow(QLabel("Capacitância (C) em Farads:"), self.entrada_C)
 
         self.entrada_V0 = QLineEdit(self)
-        self.entrada_V0.setPlaceholderText("Tensão Inicial (V0) em Volts")
-        layout.addWidget(self.entrada_V0)
+        layout_formulario.addRow(QLabel("Tensão Inicial (V0) em Volts:"), self.entrada_V0)
 
         self.entrada_t_final = QLineEdit(self)
-        self.entrada_t_final.setPlaceholderText("Tempo final em segundos")
-        layout.addWidget(self.entrada_t_final)
+        layout_formulario.addRow(QLabel("Tempo final em segundoss:"), self.entrada_t_final)
 
         self.entrada_step_tempo = QLineEdit(self)
-        self.entrada_step_tempo.setPlaceholderText("Passo de Tempo em segundos")
-        layout.addWidget(self.entrada_step_tempo)
+        layout_formulario.addRow(QLabel("Passo de Tempo em segundos:"), self.entrada_step_tempo)
+
+        # Adiciona o layout de formulário ao layout principal
+        layout.addLayout(layout_formulario)
 
         botao_gerar_grafico = QPushButton("Gerar gráfico", self)
         botao_gerar_grafico.clicked.connect(self.gerar_grafico)
@@ -68,8 +67,10 @@ class Simulador(QMainWindow):
             passo_tempo = float(self.entrada_step_tempo.text())
         except ValueError:
             # Mostre uma mensagem de erro se os valores de entrada não forem válidos
-            error_label = QLabel("Por favor, insira valores numéricos válidos.", self)
-            error_label.show()
+            msg_erro = QErrorMessage()
+            msg_erro.setWindowTitle("Erro")
+            msg_erro.showMessage("Certifique-se de que os valores numéricos inseridos são válidos")
+            msg_erro.exec_()
             return
 
         # Gerar o eixo do tempo
