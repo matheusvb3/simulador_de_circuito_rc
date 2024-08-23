@@ -7,7 +7,7 @@ import numpy as np
 import csv
 from datetime import datetime
 
-def calcular_tensao(V0, R, C, t):
+def calcular_tensao(V0: float, R: float, C: float, t: float) -> float:
     """
     Calcula o valor de tensão do circuito RC em um instante t dados V0, R e C.
 
@@ -19,7 +19,7 @@ def calcular_tensao(V0, R, C, t):
     """
     return V0 * np.exp(-t / (R * C))
 
-def calcular_corrente(V0, R, C, t):
+def calcular_corrente(V0: float, R: float, C: float, t: float) -> float:
     """
     Calcula o valor de corrente do circuito RC em um instante t dados V0, R e C.
 
@@ -83,6 +83,8 @@ class Simulador(QMainWindow):
             V0 = float(self.entrada_V0.text())
             t_final = float(self.entrada_t_final.text())
             step_tempo = float(self.entrada_step_tempo.text())
+            if t_final <= 0 or step_tempo <= 0 or t_final == step_tempo:
+                raise ValueError
         except ValueError:
             msg_erro = QErrorMessage()
             msg_erro.setWindowTitle("Erro")
