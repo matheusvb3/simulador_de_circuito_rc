@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "simulador-de-circuito-rc" 
-dynamic = ["version"] # Indica que a string que indica a versão do projeto é "dinâmica" e será determinada em outro arquivo, neste caso src/conversor/__about__.py, conforme definido na seção "[tool.hatch.version]" deste arquivo
+dynamic = ["version"]
 description = "Realiza a simulação de um circuito elétrico com resistor e capacitor"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -13,13 +13,17 @@ keywords = ["circuito elétrico", "simulador"]
 authors = [
   { name = "Matheus", email = "matheus.venturini@acad.ufsm.br" },
 ]
-dependencies = []
+dependencies = [
+    "pyqt5",
+    "matplotlib",
+    "numpy",
+]
 
 [tool.hatch.version]
 path = "src/simulador_de_circuito_rc/__about__.py"
 
 [tool.hatch.envs.default]
-dependencies = [ # Aqui estão as dependências para quem for trabalhar com o desenvolvimento do projeto
+dependencies = [
     "pytest",
     "ruff",
     "mypy",

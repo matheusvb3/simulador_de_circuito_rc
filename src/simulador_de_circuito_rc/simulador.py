@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout, QPushButton, QLabel, QLineEdit, QFormLayout, QErrorMessage, QFileDialog
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -55,8 +55,7 @@ class Simulador(QMainWindow):
         self.entrada_step_tempo = QLineEdit(self)
         layout_formulario.addRow(QLabel("Passo de tempo em segundos:"), self.entrada_step_tempo)
 
-        # Adiciona o layout de formulário ao layout principal
-        layout.addLayout(layout_formulario)
+        layout.addLayout(layout_formulario) # Adiciona o layout de formulário ao layout principal
 
         botao_gerar_grafico = QPushButton("Gerar gráfico", self)
         botao_gerar_grafico.clicked.connect(self.gerar_grafico)
