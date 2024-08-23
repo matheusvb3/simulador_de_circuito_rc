@@ -148,6 +148,6 @@ if __name__ == '__main__': # Convenção idiomática para se certificar que o pr
     meu_simulador = QApplication(sys.argv)
     jan = Simulador()
     jan.setWindowTitle("Simulador de circuito RC")
-    jan.setWindowIcon(QtGui.QIcon('../../icon.png'))
+    jan.setWindowIcon(QtGui.QIcon('../../images/icon.png'))
     jan.show()
     sys.exit(meu_simulador.exec_())
