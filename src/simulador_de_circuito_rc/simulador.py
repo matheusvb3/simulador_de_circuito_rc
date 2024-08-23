@@ -2,11 +2,11 @@ from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import Qt, QTimer, QPointF
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout, QPushButton, QLabel, QLineEdit, QFormLayout, QErrorMessage
-from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis
-import random
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout, QPushButton, QLabel, QLineEdit, QFormLayout, QErrorMessage, QFileDialog
 import sys
 import numpy as np
+import csv
+from datetime import datetime
 
 def calcula_tensao(V0, R, C, t):
     return V0 * np.exp(-t / (R * C))
@@ -49,9 +49,10 @@ class Simulador(QMainWindow):
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
 
-        botao_salvar = QPushButton("Salvar resultados")
-        botao_salvar.clicked.connect(self.salvar_resultados)
-        layout.addWidget(botao_salvar)
+        self.botao_salvar = QPushButton("Salvar resultados")
+        self.botao_salvar.clicked.connect(self.salvar_resultados)
+        self.botao_salvar.setEnabled(False)
+        layout.addWidget(self.botao_salvar)
 
         container = QWidget()
         container.setLayout(layout)
@@ -74,19 +75,19 @@ class Simulador(QMainWindow):
             return
 
         # Gerar o eixo do tempo
-        t = np.arange(0, t_final, passo_tempo)
+        self.linha_tempo = np.arange(0, t_final, passo_tempo)
 
         # Calcular tensão e corrente
-        Vt = calcula_tensao(V0, R, C, t)
-        It = calcula_corrente(V0, R, C, t)
+        self.V_transiente = calcula_tensao(V0, R, C, self.linha_tempo)
+        self.I_transiente = calcula_corrente(V0, R, C, self.linha_tempo)
 
         # Limpar o gráfico anterior
         self.figure.clear()
 
         # Plotar novos dados
         ax = self.figure.add_subplot(111)
-        ax.plot(t, Vt, label = "Tensão (V)", c = 'b')
-        ax.plot(t, It, label = "Corrente (I)", c = 'r')
+        ax.plot(self.linha_tempo, self.V_transiente, label = "Tensão (V)", c = 'b')
+        ax.plot(self.linha_tempo, self.I_transiente, label = "Corrente (I)", c = 'r')
         ax.set_xlabel("Tempo (s)")
         ax.set_ylabel("Amplitude")
         ax.set_title("Resposta Transitória do Circuito RC")
@@ -94,10 +95,30 @@ class Simulador(QMainWindow):
 
         # Atualizar o canvas
         self.canvas.draw()
+        self.botao_salvar.setEnabled(True)
 
     def salvar_resultados(self):
+        # Abrir diálogo para selecionar onde salvar o arquivo
+        options = QFileDialog.Options()
+        nome_arquivo = 'resultados_circuito_rc_' + datetime.now().strftime("%d-%m-%Y-%H-%M-%S") + '.csv'
+        file_path, _ = QFileDialog.getSaveFileName(self, "Salvar resultados", nome_arquivo, "CSV Files (*.csv);;All Files (*)", options=options)
 
-        pass
+        if file_path:
+            try:
+                # Salvar os dados em um arquivo CSV
+                with open(file_path, mode = 'w', newline = '') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(["Tempo (s)", "Tensão (V)", "Corrente (I)"])
+                    for i in range(len(self.linha_tempo)):
+                        writer.writerow([self.linha_tempo[i], self.V_transiente[i], self.I_transiente[i]])
+
+                # Exibir um tooltip de sucesso
+                self.entrada_R.setToolTip(f"Resultados salvos em: {file_path}")
+                self.entrada_R.setStyleSheet("border: 1px solid green;")
+            except Exception as e:
+                # Exibir um tooltip de erro
+                self.entrada_R.setToolTip(f"Erro ao salvar o arquivo: {str(e)}")
+                self.entrada_R.setStyleSheet("border: 1px solid red;")
 
 if __name__ == '__main__': # Convenção idiomática para se certificar que o programa não está sendo executado importado por algum outro arquivo
     meu_simulador = QApplication(sys.argv)
