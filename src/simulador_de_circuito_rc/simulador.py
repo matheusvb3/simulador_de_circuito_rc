@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout, QPushButton, QLabel, QLineEdit, QFormLayout, QErrorMessage, QFileDialog
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -69,8 +69,11 @@ class Simulador(QMainWindow):
         self.botao_salvar = QPushButton("Salvar resultados")
         self.botao_salvar.clicked.connect(self.salvar_resultados)
         self.botao_salvar.setEnabled(False)
-        self.botao_salvar.setToolTip("Gere um gráfico antes de ter acesso aos resultados")
         layout.addWidget(self.botao_salvar)
+
+        self.label_fim = QLabel("Gere um gráfico antes de poder ter acesso aos resultados")
+        self.label_fim.setAlignment(QtCore.Qt.AlignCenter)
+        layout.addWidget(self.label_fim)
 
         container = QWidget()
         container.setLayout(layout)
@@ -109,8 +112,8 @@ class Simulador(QMainWindow):
         graf.legend()
 
         self.canvas.draw()
-        self.botao_salvar.setEnabled(True) # Habilita o botão de salvar os resultados e remove o seu tooltip
-        self.botao_salvar.setToolTip("")
+        self.botao_salvar.setEnabled(True) # Habilita o botão de salvar os resultados
+        self.label_fim.setText("Clique para salvar os resultados como CSV")
 
     def salvar_resultados(self):
         """
@@ -133,6 +136,7 @@ class Simulador(QMainWindow):
                     writer.writerow(["Tempo (s)", "Tensão (V)", "Corrente (A)"])
                     for i in range(len(self.linha_tempo)):
                         writer.writerow([self.linha_tempo[i], self.V_transiente[i], self.I_transiente[i]])
+                    self.label_fim.setText("Arquivo salvo com sucesso")
 
             except Exception as e:
                 msg_erro = QErrorMessage()
