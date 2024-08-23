@@ -32,6 +32,9 @@ def calcular_corrente(V0: float, R: float, C: float, t: float) -> float:
     return (V0 / R) * np.exp(-t / (R * C))
 
 class Simulador(QMainWindow):
+    """
+    Esta classe gera a janela de interação com o usuário do programa, feita com PyQt5. Não possui nenhum parâmetro passado ao construtor.
+    """
     def __init__(self):
         super().__init__()
         self.inicializar_interface()
@@ -79,6 +82,13 @@ class Simulador(QMainWindow):
         self.setCentralWidget(container)
 
     def gerar_grafico(self):
+        """
+        Gera uma figura com o matplotlib dados os valores V0, R, C, t_final e step_tempo informados pelo usuário.
+
+        :raise ValueError: Caso algum dos valores informados pelo usuário não seja válido (por exemplo, contenha letras) uma mensagem
+            de erro será exibida. Esta mensagem também aparecerá se os valores que representam tempo tiverem valores negativos ou nulos
+            ou se os dois tiverem o mesmo valor (isso faz com que o matplotlib não consiga gerar o gráfico).
+        """
         try:
             R = float(self.entrada_R.text())
             C = float(self.entrada_C.text())
@@ -116,11 +126,11 @@ class Simulador(QMainWindow):
 
     def salvar_resultados(self):
         """
-        Converte a temperatura de Celsius para Fahrenheit.
+        Salva os resultados obtidos em um arquivo CSV. O nome do arquivo por padrão tem o dia e hora para certificar que não
+        tenha possibilidade de haver repetições na hora de salvar.
 
-        :param temp_celsius: Temperatura em Celsius.
-        :return: Temperatura em Fahrenheit.
-        :raise Exception: Apenas para certificar-se de que o salvamento do arquivo tenha ocorrido com sucesso, é realizado um teste.
+        :raise Exception: Como sempre pode ocorrer um erro quando pretende-se salvar um arquivo, temos um teste para que seja
+            devidamente capturado e apresentado ao usuário.
         """
         nome_arquivo = 'resultados_circuito_rc_' + datetime.now().strftime("%d-%m-%Y-%H-%M-%S") + '.csv'
         caminho_arquivo, _ = QFileDialog.getSaveFileName(self, "Salvar resultados", nome_arquivo, "CSV Files (*.csv);;All Files (*)")
