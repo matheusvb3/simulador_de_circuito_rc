@@ -69,6 +69,7 @@ class Simulador(QMainWindow):
         self.botao_salvar = QPushButton("Salvar resultados")
         self.botao_salvar.clicked.connect(self.salvar_resultados)
         self.botao_salvar.setEnabled(False)
+        self.botao_salvar.setToolTip("Gere um gráfico antes de ter acesso aos resultados")
         layout.addWidget(self.botao_salvar)
 
         container = QWidget()
@@ -106,7 +107,8 @@ class Simulador(QMainWindow):
         graf.legend()
 
         self.canvas.draw()
-        self.botao_salvar.setEnabled(True) # Habilita o botão de salvar os resultados
+        self.botao_salvar.setEnabled(True) # Habilita o botão de salvar os resultados e remove o seu tooltip
+        self.botao_salvar.setToolTip("")
 
     def salvar_resultados(self):
         """
