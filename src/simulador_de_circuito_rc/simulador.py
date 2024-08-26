@@ -44,7 +44,10 @@ class Simulador(QMainWindow):
 
     def inicializar_interface(self):
         """
-        Foo bar...
+        Monta a interface do usuário. A interface é composta por um QFormLayout que é então inserido em um QVBoxLayout. O QFormLayout
+        possui cinco QLineEdits (campos de entrada) e seus respectivos QLabels, e o QVBoxLayout possui dois QPushButtons, um canvas
+        para mostrar o gráfico associado e um QPixmap (imagem) mostrando o esquemático associado, além de um QLabel trazendo informações
+        ao usuário.
         """
         layout = QVBoxLayout()
         layout_formulario = QFormLayout()
@@ -99,13 +102,21 @@ class Simulador(QMainWindow):
 
     def iniciar_simulacao(self):
         """
-        Foobar...
+        Esta função encapsula as outras duas que formam a simulação do circuito RC. Primeiro é chamada gerar_grafico e posteriormente
+        gerar_esquematico. Se gerar_grafico falhar (o que pode ocorrer se, por exemplo, os valores informados pelo usuário não serem
+        válidos) a função gerar_esquematico não será chamada, e será mostrada uma janela contendo uma mensagem de erro.
         """
         QApplication.setOverrideCursor(Qt.WaitCursor)
 
         try:
             self.gerar_grafico()
             self.gerar_esquematico()
+        except Exception as e:
+            QApplication.restoreOverrideCursor()
+            msg_erro = QErrorMessage()
+            msg_erro.setWindowTitle("Erro")
+            msg_erro.showMessage("Certifique-se de que os valores numéricos inseridos são válidos. O erro que ocorreu é este: " + str(e))
+            msg_erro.exec_()
         finally:
             QApplication.restoreOverrideCursor()
 
@@ -113,24 +124,16 @@ class Simulador(QMainWindow):
         """
         Gera uma figura com o matplotlib dados os valores V0, R, C, t_final e step_tempo informados pelo usuário.
 
-        :raise ValueError: Caso algum dos valores informados pelo usuário não seja válido (por exemplo, contenha letras) uma mensagem
-            de erro será exibida. Esta mensagem também aparecerá se os valores que representam tempo tiverem valores negativos ou nulos
-            ou se os dois tiverem o mesmo valor (isso faz com que o matplotlib não consiga gerar o gráfico).
+        :raise ValueError: Se os valores que representam tempo tiverem valores negativos ou nulos  ou se os dois tiverem
+            o mesmo valor (isso faz com que o matplotlib não consiga gerar o gráfico).
         """
-        try:
-            R = float(self.entrada_R.text())
-            C = float(self.entrada_C.text())
-            V0 = float(self.entrada_V0.text())
-            t_final = float(self.entrada_t_final.text())
-            step_tempo = float(self.entrada_step_tempo.text())
-            if t_final <= 0 or step_tempo <= 0 or t_final == step_tempo:
-                raise ValueError
-        except ValueError:
-            msg_erro = QErrorMessage()
-            msg_erro.setWindowTitle("Erro")
-            msg_erro.showMessage("Certifique-se de que os valores numéricos inseridos são válidos.")
-            msg_erro.exec_()
-            return
+        R = float(self.entrada_R.text())
+        C = float(self.entrada_C.text())
+        V0 = float(self.entrada_V0.text())
+        t_final = float(self.entrada_t_final.text())
+        step_tempo = float(self.entrada_step_tempo.text())
+        if t_final <= 0 or step_tempo <= 0 or t_final == step_tempo:
+            raise ValueError
 
         self.linha_tempo = np.arange(0, t_final, step_tempo)
 
@@ -164,8 +167,9 @@ class Simulador(QMainWindow):
         ; draw_nodes=connections, label_nodes=none""")
         circuito.draw('../../images/circuito_rc.png')
         imagem = QPixmap('../../images/circuito_rc.png')
-        self.esquematico.setPixmap(imagem)
-        self.esquematico.setFixedSize(imagem.size())
+        imagem_reduzida = imagem.scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.esquematico.setPixmap(imagem_reduzida)
+        self.esquematico.setFixedSize(imagem_reduzida.size())
 
     def salvar_resultados(self):
         """
