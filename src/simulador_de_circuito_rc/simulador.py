@@ -1,7 +1,10 @@
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout, QPushButton, QLabel, QLineEdit, QFormLayout, QErrorMessage, QFileDialog
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from lcapy import Circuit
 import sys
 import numpy as np
 import csv
@@ -40,6 +43,9 @@ class Simulador(QMainWindow):
         self.inicializar_interface()
 
     def inicializar_interface(self):
+        """
+        Foo bar...
+        """
         layout = QVBoxLayout()
         layout_formulario = QFormLayout()
 
@@ -60,13 +66,23 @@ class Simulador(QMainWindow):
 
         layout.addLayout(layout_formulario) # Adiciona o layout de formulário ao layout principal
 
-        botao_gerar_grafico = QPushButton("Gerar gráfico", self)
-        botao_gerar_grafico.clicked.connect(self.gerar_grafico)
-        layout.addWidget(botao_gerar_grafico)
+        botao_gerar_graf_e_esq = QPushButton("Gerar gráfico e esquemático")
+        botao_gerar_graf_e_esq.clicked.connect(self.iniciar_simulacao)
+        layout.addWidget(botao_gerar_graf_e_esq)
+
+        # As linhas abaixo fazem com que o botão de gerar gráfico seja ativado se for apertado enter enquanto o foco está em um dos campos de entrada
+        self.entrada_R.returnPressed.connect(botao_gerar_graf_e_esq.click)
+        self.entrada_C.returnPressed.connect(botao_gerar_graf_e_esq.click)
+        self.entrada_V0.returnPressed.connect(botao_gerar_graf_e_esq.click)
+        self.entrada_t_final.returnPressed.connect(botao_gerar_graf_e_esq.click)
+        self.entrada_step_tempo.returnPressed.connect(botao_gerar_graf_e_esq.click)
 
         self.figura_gerada = plt.figure()
         self.canvas = FigureCanvas(self.figura_gerada)
         layout.addWidget(self.canvas)
+
+        self.esquematico = QLabel(self)
+        layout.addWidget(self.esquematico)
 
         self.botao_salvar = QPushButton("Salvar resultados")
         self.botao_salvar.clicked.connect(self.salvar_resultados)
@@ -80,6 +96,18 @@ class Simulador(QMainWindow):
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
+
+    def iniciar_simulacao(self):
+        """
+        Foobar...
+        """
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+
+        try:
+            self.gerar_grafico()
+            self.gerar_esquematico()
+        finally:
+            QApplication.restoreOverrideCursor()
 
     def gerar_grafico(self):
         """
@@ -124,6 +152,21 @@ class Simulador(QMainWindow):
         self.botao_salvar.setEnabled(True) # Habilita o botão de salvar os resultados
         self.label_fim.setText("Clique para salvar os resultados como CSV")
 
+    def gerar_esquematico(self):
+        """
+        Foobar....
+        """
+        circuito = Circuit(f"""
+        W1 1 2; left
+        W2 3 4; right
+        C1 4 1 {self.entrada_C.text()} {self.entrada_V0.text()}; up
+        R1 2 3 {self.entrada_R.text()}; down
+        ; draw_nodes=connections, label_nodes=none""")
+        circuito.draw('../../images/circuito_rc.png')
+        imagem = QPixmap('../../images/circuito_rc.png')
+        self.esquematico.setPixmap(imagem)
+        self.esquematico.setFixedSize(imagem.size())
+
     def salvar_resultados(self):
         """
         Salva os resultados obtidos em um arquivo CSV. O nome do arquivo por padrão tem o dia e hora para certificar que não
@@ -132,7 +175,7 @@ class Simulador(QMainWindow):
         :raise Exception: Como sempre pode ocorrer um erro quando pretende-se salvar um arquivo, temos um teste para que seja
             devidamente capturado e apresentado ao usuário.
         """
-        nome_arquivo = 'resultados_circuito_rc_' + datetime.now().strftime("%d-%m-%Y-%H-%M-%S") + '.csv'
+        nome_arquivo = 'resultados_circuito_rc_' + datetime.now().strftime('%d-%m-%Y-%H-%M-%S') + '.csv'
         caminho_arquivo, _ = QFileDialog.getSaveFileName(self, "Salvar resultados", nome_arquivo, "CSV Files (*.csv);;All Files (*)")
         # Na linha acima, _ é usado como uma convenção idiomática para indicar que o valor retornado não será útil e pode ser descartado.
         # O segundo valor retornado por getSaveFileName é o filtro utilizado (neste caso, .csv).

@@ -17,6 +17,7 @@ dependencies = [
     "pyqt5",
     "matplotlib",
     "numpy",
+    "lcapy"
 ]
 
 [tool.hatch.version]
@@ -27,8 +28,7 @@ dependencies = [
     "pytest",
     "ruff",
     "mypy",
-    "sphinx",
-    "myst-parser" # Para usar Markdown com o Sphinx. Neste projeto não será usado, mas vou deixar incluso apneas por acaso.
+    "sphinx"
 ]
 
 [tool.hatch.envs.types]
