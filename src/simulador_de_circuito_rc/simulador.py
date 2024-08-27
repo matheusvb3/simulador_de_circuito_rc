@@ -163,11 +163,14 @@ class Simulador(QMainWindow):
         Utiliza o pacote lcapy para gerar uma representação esquemática do circuito que está sendo simulado. A imagem é gerada
         a partir de um netlist e é então salva no diretório de imagens e exibida em um QLabel na interface.
         """
+        C = float(self.entrada_C.text())
+        R = float(self.entrada_R.text())
+        V0 = float(self.entrada_V0.text())
         circuito = Circuit(f"""
-        W1 1 2; left
-        W2 3 4; right
-        C 4 1 {self.entrada_C.text()}; up
-        R 2 3 {self.entrada_R.text()}; down, v={self.entrada_V0.text()}V
+        W1 1 2; left, size=1.5
+        W2 3 4; right, size=1.5
+        C 4 1 {C:.3f}; up
+        R 2 3 {R:.3f}; down, v={V0:.3g}V
         ; draw_nodes=connections, label_nodes=none""")
         circuito.draw('../../images/circuito_rc.png')
         imagem = QPixmap('../../images/circuito_rc.png')
