@@ -82,10 +82,12 @@ class Simulador(QMainWindow):
 
         self.figura_gerada = plt.figure()
         self.canvas = FigureCanvas(self.figura_gerada)
+        self.canvas.setMinimumSize(500, 530)
         layout.addWidget(self.canvas)
 
         self.esquematico = QLabel(self)
-        layout.addWidget(self.esquematico)
+        self.esquematico.adjustSize()
+        layout.addWidget(self.esquematico, alignment = Qt.AlignCenter)
 
         self.botao_salvar = QPushButton("Salvar resultados")
         self.botao_salvar.clicked.connect(self.salvar_resultados)
@@ -93,8 +95,7 @@ class Simulador(QMainWindow):
         layout.addWidget(self.botao_salvar)
 
         self.label_fim = QLabel("Gere o gráfico e esquemático antes de poder ter acesso aos resultados")
-        self.label_fim.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.label_fim)
+        layout.addWidget(self.label_fim, alignment = Qt.AlignCenter)
 
         container = QWidget()
         container.setLayout(layout)
@@ -104,7 +105,7 @@ class Simulador(QMainWindow):
         """
         Esta função encapsula as outras duas que formam a simulação do circuito RC. Primeiro é chamada gerar_grafico e posteriormente
         gerar_esquematico. Se gerar_grafico falhar (o que pode ocorrer se, por exemplo, os valores informados pelo usuário não serem
-        válidos) a função gerar_esquematico não será chamada, e será mostrada uma janela contendo uma mensagem de erro.
+        válidos) nenhuma das linhas seguintes no bloco try serão executadas, e será mostrada uma janela contendo uma mensagem de erro.
 
         Esta função também troca o cursor do usuário para indicar que está sendo processada a simulação, visto que o uso da classe
         Circuit do pacote lcapy é demorado.
@@ -113,6 +114,8 @@ class Simulador(QMainWindow):
 
         try:
             self.gerar_grafico()
+            self.botao_salvar.setEnabled(True) # Habilita o botão de salvar os resultados
+            self.label_fim.setText("Clique para salvar os resultados como CSV")
             self.gerar_esquematico()
         except Exception as e:
             QApplication.restoreOverrideCursor()
@@ -153,10 +156,7 @@ class Simulador(QMainWindow):
         graf.set_title("Resposta transitória do circuito RC")
         graf.grid()
         graf.legend()
-
         self.canvas.draw()
-        self.botao_salvar.setEnabled(True) # Habilita o botão de salvar os resultados
-        self.label_fim.setText("Clique para salvar os resultados como CSV")
 
     def gerar_esquematico(self):
         """
@@ -171,9 +171,8 @@ class Simulador(QMainWindow):
         ; draw_nodes=connections, label_nodes=none""")
         circuito.draw('../../images/circuito_rc.png')
         imagem = QPixmap('../../images/circuito_rc.png')
-        imagem_reduzida = imagem.scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.esquematico.setPixmap(imagem_reduzida)
-        self.esquematico.setFixedSize(imagem_reduzida.size())
+        imagem = imagem.scaled(300, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.esquematico.setPixmap(imagem)
 
     def salvar_resultados(self):
         """
