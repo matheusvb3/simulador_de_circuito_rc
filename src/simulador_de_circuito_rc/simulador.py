@@ -174,7 +174,7 @@ class Simulador(QMainWindow):
         ; draw_nodes=connections, label_nodes=none""")
         circuito.draw('../../images/circuito_rc.png')
         imagem = QPixmap('../../images/circuito_rc.png')
-        imagem = imagem.scaled(300, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        imagem = imagem.scaled(400, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.esquematico.setPixmap(imagem)
 
     def salvar_resultados(self):
