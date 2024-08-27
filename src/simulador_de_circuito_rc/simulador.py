@@ -92,8 +92,8 @@ class Simulador(QMainWindow):
         self.botao_salvar.setEnabled(False)
         layout.addWidget(self.botao_salvar)
 
-        self.label_fim = QLabel("Gere um gráfico antes de poder ter acesso aos resultados")
-        self.label_fim.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_fim = QLabel("Gere o gráfico e esquemático antes de poder ter acesso aos resultados")
+        self.label_fim.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.label_fim)
 
         container = QWidget()
@@ -105,6 +105,9 @@ class Simulador(QMainWindow):
         Esta função encapsula as outras duas que formam a simulação do circuito RC. Primeiro é chamada gerar_grafico e posteriormente
         gerar_esquematico. Se gerar_grafico falhar (o que pode ocorrer se, por exemplo, os valores informados pelo usuário não serem
         válidos) a função gerar_esquematico não será chamada, e será mostrada uma janela contendo uma mensagem de erro.
+
+        Esta função também troca o cursor do usuário para indicar que está sendo processada a simulação, visto que o uso da classe
+        Circuit do pacote lcapy é demorado.
         """
         QApplication.setOverrideCursor(Qt.WaitCursor)
 
@@ -133,7 +136,7 @@ class Simulador(QMainWindow):
         t_final = float(self.entrada_t_final.text())
         step_tempo = float(self.entrada_step_tempo.text())
         if t_final <= 0 or step_tempo <= 0 or t_final == step_tempo:
-            raise ValueError
+            raise ValueError("os valores de tempo devem ser maiores que zero e não podem ser iguais entre si")
 
         self.linha_tempo = np.arange(0, t_final, step_tempo)
 
@@ -157,13 +160,14 @@ class Simulador(QMainWindow):
 
     def gerar_esquematico(self):
         """
-        Foobar....
+        Utiliza o pacote lcapy para gerar uma representação esquemática do circuito que está sendo simulado. A imagem é gerada
+        a partir de um netlist e é então salva no diretório de imagens e exibida em um QLabel na interface.
         """
         circuito = Circuit(f"""
         W1 1 2; left
         W2 3 4; right
-        C1 4 1 {self.entrada_C.text()} {self.entrada_V0.text()}; up
-        R1 2 3 {self.entrada_R.text()}; down
+        C 4 1 {self.entrada_C.text()}; up
+        R 2 3 {self.entrada_R.text()}; down, v={self.entrada_V0.text()}V
         ; draw_nodes=connections, label_nodes=none""")
         circuito.draw('../../images/circuito_rc.png')
         imagem = QPixmap('../../images/circuito_rc.png')
